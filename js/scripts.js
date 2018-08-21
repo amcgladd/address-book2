@@ -5,7 +5,8 @@ function Contact(first, last) {
   this.addresses = [];
 }
 
-function Address(street, city, state) {
+function Address(addressType, street, city, state) {
+  this.addressType = addressType;
   this.street = street;
   this.city = city;
   this.state = state;
@@ -16,22 +17,28 @@ Contact.prototype.fullName = function() {
 }
 
 Address.prototype.fullAddress = function() {
-  return this.street + ", " + this.city + ", " + this.state;
+  return this.addressType + ": " + this.street + ", " + this.city + ", " + this.state;
 }
 
 function resetFields() {
+    $("input.new-address-type").val("");
     $("input#new-first-name").val("");
     $("input#new-last-name").val("");
     $("input.new-street").val("");
     $("input.new-city").val("");
     $("input.new-state").val("");
+    $(".extra-address").remove();
 }
 
 // user interface logic
 $(document).ready(function() {
-  
+
   $("#add-address").click(function() {
-    $("#new-addresses").append('<div class="new-address">' +
+    $("#new-addresses").append('<div class="new-address extra-address">' +
+                                '<div class="form-group">' +
+                                '<label for="new-address-type">Address Type</label>' +
+                                '<input type="text" class="form-control new-address-type">' +
+                                '</div>' +
                                  '<div class="form-group">' +
                                    '<label for="new-street">Street</label>' +
                                    '<input type="text" class="form-control new-street">' +
@@ -55,17 +62,18 @@ $(document).ready(function() {
     var newContact = new Contact(inputtedFirstName, inputtedLastName);
 
     $(".new-address").each(function() {
+      var inputtedAddressType = $(this).find("input.new-address-type").val();
       var inputtedStreet = $(this).find("input.new-street").val();
       var inputtedCity = $(this).find("input.new-city").val();
       var inputtedState = $(this).find("input.new-state").val();
-      var newAddress = new Address(inputtedStreet, inputtedCity, inputtedState)
+      var newAddress = new Address(inputtedAddressType, inputtedStreet, inputtedCity, inputtedState)
       newContact.addresses.push(newAddress)
     });
 
     $("ul#contacts").append("<li><span class='contact'>" + newContact.fullName() + "</span></li>");
 
     $(".contact").last().click(function() {
-      $("#show-contact").show();
+      $("#show-contact").slideToggle();
       $("#show-contact h2").text(newContact.fullName());
       $(".first-name").text(newContact.firstName);
       $(".last-name").text(newContact.lastName);
@@ -74,6 +82,11 @@ $(document).ready(function() {
         $("ul#addresses").append("<li>" + address.fullAddress() + "</li>");
       });
     });
+
+    $("ul#addresses").hover(function() {
+      $(this).toggleClass("hovered-address")
+    });
+
 
     resetFields();
 
